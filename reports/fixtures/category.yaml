@@ -1,0 +1,14 @@
+- model: reports.Category
+  pk: 1
+  fields:
+    name: "Fire"
+
+- model: reports.Category
+  pk: 2
+  fields:
+    name: "Crime"
+
+- model: reports.Category
+  pk: 3
+  fields:
+    name: "Health"
