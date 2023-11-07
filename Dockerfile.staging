@@ -19,6 +19,7 @@ RUN pip install -r requirements.txt
 # Set up NLTK data download
 RUN python -m nltk.downloader punkt
 RUN python -m nltk.downloader stopwords
+RUN python -m nltk.downloader maxent_ne_chunker
 RUN python -m nltk.downloader averaged_perceptron_tagger
 
 COPY . /opt/projects/reportify
