@@ -1,9 +1,10 @@
-import re
 import random
-
+import re
 
 import nltk
-from nltk import word_tokenize, ne_chunk
+from nltk import ne_chunk, word_tokenize
+from nltk.tag import pos_tag
+
 from reports.models import Report
 
 
@@ -13,7 +14,7 @@ class ReportService:
     @staticmethod
     def submit_report(data):
         description = data.get("description")
-        location = ReportService.extract_location_from_description(description)
+        location = ReportService.extract_location_from_description(description) or ReportService.UNKNOWN_LOCATION
 
         # Todo: Use ML algorithm to predict the incident category.
         category_id = random.randint(1, 3)
@@ -66,7 +67,7 @@ class ReportService:
         normalized_location = ReportService.normalize_location(location)
 
         return normalized_location
-    
+
     @staticmethod
     def _extract_location_from_description_with_re(description: str) -> str:
         """
@@ -80,6 +81,7 @@ class ReportService:
 
         if match:
             location = match.group(1)
+            location = ReportService.filter_nouns(location) or location
         else:
             location = ReportService.UNKNOWN_LOCATION
 
@@ -93,3 +95,11 @@ class ReportService:
         Convert location to lowercase and remove leading/trailing whitespaces
         """
         return location.lower().strip()
+
+    @staticmethod
+    def filter_nouns(text):
+        words = word_tokenize(text)
+        tagged_words = pos_tag(words)
+        nouns = [word for word, tag in tagged_words if tag in ["NN", "NNS", "NNP", "NNPS"]]
+    
+        return " ".join(nouns)
