@@ -2,13 +2,13 @@ FROM python:3.9
 ENV PYTHONUNBUFFERED 1
 
 # Install PostgreSQL client
-# RUN apt-get update && \
-#     apt-get install -y postgresql-client
+RUN apt-get update && \
+    apt-get install -y postgresql-client
 
 # Set environment variables for Django superuser.
-# ENV DJANGO_SUPERUSER_EMAIL=admin@admin.com
-# ENV DJANGO_SUPERUSER_USERNAME=admin
-# ENV DJANGO_SUPERUSER_PASSWORD=admin
+ENV DJANGO_SUPERUSER_EMAIL=admin@admin.com
+ENV DJANGO_SUPERUSER_USERNAME=admin
+ENV DJANGO_SUPERUSER_PASSWORD=admin
 
 RUN mkdir -p /opt/projects/reportify
 RUN chmod -R 777 /opt/projects/reportify
@@ -22,14 +22,8 @@ WORKDIR /opt/projects/reportify
 RUN mkdir -p static/
 RUN mkdir -p staticfiles/
 
-# CMD python manage.py migrate && \
-#     python manage.py createsuperuser --noinput && \
-#     make load_all_fixtures && \
-#     python manage.py collectstatic && \
-#     gunicorn --bind 0.0.0.0:$PORT --access-logfile - reportify.wsgi:application
-
-# python manage.py seedusers && \
-
 CMD python manage.py migrate && \
+    python manage.py createsuperuser --noinput && \
+    make load_all_fixtures && \
     python manage.py collectstatic && \
     gunicorn --bind 0.0.0.0:$PORT --access-logfile - reportify.wsgi:application
