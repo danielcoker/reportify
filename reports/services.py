@@ -4,8 +4,9 @@ import re
 import nltk
 from nltk import ne_chunk, word_tokenize
 from nltk.tag import pos_tag
+from rest_framework.exceptions import ValidationError
 
-from reports.models import Report
+from reports.models import Category, Report
 
 
 class ReportService:
@@ -14,7 +15,10 @@ class ReportService:
     @staticmethod
     def submit_report(data):
         description = data.get("description")
-        location = ReportService.extract_location_from_description(description) or ReportService.UNKNOWN_LOCATION
+        location = (
+            ReportService.extract_location_from_description(description)
+            or ReportService.UNKNOWN_LOCATION
+        )
 
         # Todo: Use ML algorithm to predict the incident category.
         category_id = random.randint(1, 3)
@@ -26,7 +30,7 @@ class ReportService:
         )
 
         return report
-    
+
     @staticmethod
     def extract_location_from_description(description: str) -> str:
         """
@@ -39,14 +43,18 @@ class ReportService:
         and if we are still unable to retrieve the location, we can then use the other techniques as fallbacks.
         """
         # Todo: Add logs here.
-        location = ReportService._extract_location_from_description_with_nlp(description)
+        location = ReportService._extract_location_from_description_with_nlp(
+            description
+        )
 
         if location == ReportService.UNKNOWN_LOCATION:
             # Todo: Add logs here.
-            location = ReportService._extract_location_from_description_with_re(description)
+            location = ReportService._extract_location_from_description_with_re(
+                description
+            )
 
         return location
-    
+
     @staticmethod
     def _extract_location_from_description_with_nlp(description: str) -> str:
         # Tokenize the text into words
@@ -58,12 +66,12 @@ class ReportService:
         location = ""
 
         for subtree in tree:
-            if type(subtree) == nltk.Tree and subtree.label() == 'GPE':
+            if type(subtree) == nltk.Tree and subtree.label() == "GPE":
                 location = " ".join([word for word, tag in subtree.leaves()])
 
         if location == "":
             location = ReportService.UNKNOWN_LOCATION
-        
+
         normalized_location = ReportService.normalize_location(location)
 
         return normalized_location
@@ -100,6 +108,49 @@ class ReportService:
     def filter_nouns(text):
         words = word_tokenize(text)
         tagged_words = pos_tag(words)
-        nouns = [word for word, tag in tagged_words if tag in ["NN", "NNS", "NNP", "NNPS"]]
-    
+        nouns = [
+            word for word, tag in tagged_words if tag in ["NN", "NNS", "NNP", "NNPS"]
+        ]
+
         return " ".join(nouns)
+
+    @staticmethod
+    def get_category(*, id: int = None, name: str = None) -> Category:
+        """
+        Fetch a category by its id.
+        """
+        if not id and not name:
+            raise ValidationError("Either id or name is required.")
+
+        if id and name:
+            raise ValidationError("Only one of id or name is allowed.")
+
+        if id:
+            return ReportService._get_category_by_id(id)
+
+        if name:
+            return ReportService._get_category_by_name(name)
+
+    @staticmethod
+    def _get_category_by_id(id: int) -> Category:
+        """
+        Fetch a category by its id.
+        """
+        try:
+            category = Category.objects.get(id=id)
+        except Category.DoesNotExist:
+            raise ValidationError("Category does not exist.")
+
+        return category
+
+    @staticmethod
+    def _get_category_by_name(name: str) -> Category:
+        """
+        Fetch a category by its name.
+        """
+        try:
+            category = Category.objects.get(name=name)
+        except Category.DoesNotExist:
+            raise ValidationError("Category does not exist.")
+
+        return category
