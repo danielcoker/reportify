@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 
 from core.models import SoftDeleteModel, TimestampedModel
+from users.models import User
 
 
 class Category(models.Model):
@@ -16,6 +17,11 @@ class Category(models.Model):
 
 
 class Report(TimestampedModel, SoftDeleteModel):
+    class Status(models.TextChoices):
+        OPEN = "open", "Open"
+        IN_PROGRESS = "in_progress", "In-Progress"
+        RESOLVED = "resolved", "Resolved"
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -31,6 +37,17 @@ class Report(TimestampedModel, SoftDeleteModel):
         Category,
         on_delete=models.CASCADE,
         related_name="reports",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.OPEN,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
 
     def __str__(self):

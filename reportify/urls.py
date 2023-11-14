@@ -17,9 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from reportify.routers import router
+from reportify.routers import v1_router
 
 urlpatterns = [
-    path('api/v1/', include(router.urls)),
+    path("api/v1/", include((v1_router.urls, "api-v1"), namespace="v1")),
     path("admin/", admin.site.urls),
 ]

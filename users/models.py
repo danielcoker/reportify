@@ -29,6 +29,17 @@ class User(AbstractUser, SoftDeleteModel):
         null=True,
     )
     is_email_verified = models.BooleanField(default=False)
+    is_phone_verified = models.BooleanField(default=False)
+
+    # Admin related fields.
+    # These fields will be used by the emergency services staff.
+    is_admin = models.BooleanField(default=False)
+    admin_category = models.ForeignKey(
+        "reports.Category",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
