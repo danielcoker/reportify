@@ -15,6 +15,7 @@ class ReportAdmin(admin.ModelAdmin):
         "id",
         "category",
         "location",
+        "status",
         "description",
         "created_at",
     )
