@@ -6,6 +6,9 @@ import nltk
 from nltk import ne_chunk, word_tokenize
 from nltk.tag import pos_tag
 from rest_framework.exceptions import ValidationError
+from reportify.utils import generate_random_string
+
+from django.db import transaction
 
 from reports.models import Category, Report
 from users.models import User
@@ -90,7 +93,11 @@ class ReportService:
 
     @staticmethod
     def submit_report(data):
+        from authentication.services import AuthenticationService
+
         description = data.get("description")
+        name = data.get("name")
+        phone = data.get("phone")
         location = (
             ReportService.extract_location_from_description(description)
             or ReportService.UNKNOWN_LOCATION
@@ -99,11 +106,33 @@ class ReportService:
         # Todo: Use ML algorithm to predict the incident category.
         category_id = random.randint(1, 3)
 
-        report = Report.objects.create(
-            description=description,
-            location=location,
-            category_id=category_id,
-        )
+        # Create user.
+        with transaction.atomic():
+            try:
+                user = User.objects.get(phone=phone)
+            except User.DoesNotExist:
+                email = f"gen_{phone}@reportify.io"
+                password = generate_random_string(8)
+
+                full_name_parts = name.split(" ")
+                first_name, *last_name = full_name_parts
+
+                user_data = {
+                    "first_name": first_name,
+                    "last_name": " ".join(last_name),
+                    "email": email,
+                    "phone": phone,
+                    "password": password,
+                    "is_active": False,
+                }
+                user = AuthenticationService.create_user(**user_data)
+
+            report = Report.objects.create(
+                description=description,
+                location=location,
+                category_id=category_id,
+                user=user,
+            )
 
         return report
 

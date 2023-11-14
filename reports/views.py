@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 from core.mixins import ResponseMessageMixin
 from core.permissions import IsEmergencyServiceAdmin
 from reports.models import Report
-from reports.serializers import ChangeCategorySerializer, ReportSerializer
+from reports.serializers import ChangeCategorySerializer, ReportSerializer, SubmitReportSerializer
 from reports.services import ReportService
 
 
@@ -27,7 +27,7 @@ class ReportViewSet(
         return ReportService.get_reports(user)
 
     def create(self, request, *args, **kwargs):
-        serializer = ReportSerializer(data=request.data)
+        serializer = SubmitReportSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         report = ReportService.submit_report(serializer.validated_data)
