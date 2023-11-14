@@ -73,6 +73,22 @@ class ReportService:
         return report
 
     @staticmethod
+    def change_report_category(id: str, category_id: int) -> Report:
+        """
+        Change the category of a report.
+
+        This should cater for instances where the system misclassifies the incident category,
+        or if the admin decides to reclassify the incident category.
+        """
+        report = ReportService.get_report(id=id)
+        category = ReportService.get_category(id=category_id)
+
+        report.category = category
+        report.save(update_fields=["category", "updated_at"])
+
+        return report
+
+    @staticmethod
     def submit_report(data):
         description = data.get("description")
         location = (

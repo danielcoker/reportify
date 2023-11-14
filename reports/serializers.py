@@ -31,3 +31,7 @@ class ReportSerializer(serializers.ModelSerializer):
             "location",
             "created_at",
         )
+
+
+class ChangeCategorySerializer(serializers.Serializer):
+    category_id = serializers.IntegerField(required=True)

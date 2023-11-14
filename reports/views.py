@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 from core.mixins import ResponseMessageMixin
 from core.permissions import IsEmergencyServiceAdmin
 from reports.models import Report
-from reports.serializers import ReportSerializer
+from reports.serializers import ChangeCategorySerializer, ReportSerializer
 from reports.services import ReportService
 
 
@@ -67,5 +67,28 @@ class ReportViewSet(
         data = ReportSerializer(report).data
 
         self.response_message = "Report resolved successfully."
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=["POST"],
+        url_path="change-category",
+        url_name="change-category",
+        permission_classes=(
+            IsAuthenticated,
+            IsEmergencyServiceAdmin,
+        ),
+    )
+    def change_report_category(self, request, pk=None):
+        serializer = ChangeCategorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        category_id = serializer.validated_data.get("category_id")
+
+        report = ReportService.change_report_category(pk, category_id)
+        data = ReportSerializer(report).data
+
+        self.response_message = "Report category changed successfully."
 
         return Response(data=data, status=status.HTTP_200_OK)
