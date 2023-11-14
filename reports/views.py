@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -16,6 +16,7 @@ class ReportViewSet(
     ResponseMessageMixin,
     CreateModelMixin,
     ListModelMixin,
+    RetrieveModelMixin,
     GenericViewSet,
 ):
     serializer_class = ReportSerializer
