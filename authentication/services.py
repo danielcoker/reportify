@@ -19,16 +19,20 @@ class AuthenticationService:
         email = data.get("email")
         password = data.get("password")
         phone = data.get("phone")
+        is_active = data.get("is_active", True)
 
         username = email.split("@")[0]
 
-        is_admin = data.get("is_admin")
+        is_admin = data.get("is_admin", False)
         admin_category_id = data.get("admin_category_id")
 
         if is_admin and not admin_category_id:
             raise ValidationError("Admin category is required for admin users.")
 
-        admin_category = ReportService.get_category(id=admin_category_id)
+        if admin_category_id:
+            admin_category = ReportService.get_category(id=admin_category_id)
+        else:
+            admin_category = None
 
         signup_data = {
             "first_name": first_name,
@@ -39,9 +43,14 @@ class AuthenticationService:
             "phone": phone,
             "is_admin": is_admin,
             "admin_category": admin_category,
+            "is_active": is_active,
         }
 
-        user = User.objects.create_user(**signup_data)
+        try:
+            user = User.objects.create_user(**signup_data)
+        except Exception as e:
+            # TODO: Log the error.
+            raise ValidationError("Error creating user. Please try again.")
 
         return user
 
