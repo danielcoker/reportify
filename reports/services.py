@@ -15,6 +15,18 @@ class ReportService:
     UNKNOWN_LOCATION = "unknown"
 
     @staticmethod
+    def get_report(id: str) -> Report:
+        """
+        Fetch a report by its id.
+        """
+        try:
+            report = Report.objects.get(id=id)
+        except Report.DoesNotExist:
+            raise ValidationError("Report does not exist.")
+
+        return report
+
+    @staticmethod
     def get_reports(user: t.Optional[User] = None) -> t.List[Report]:
         """
         Fetch all reports for a particular user based on their role.
@@ -25,6 +37,40 @@ class ReportService:
             return Report.objects.filter(category=user.admin_category)
         else:
             return Report.objects.all()
+        
+    @staticmethod
+    def acknowledge_report(id: str) -> Report:
+        """
+        Acknowledge a report.
+        """
+        report = ReportService.get_report(id=id)
+
+        if report.status != Report.Status.OPEN:
+            raise ValidationError("Report is not open.")
+
+        report.status = Report.Status.IN_PROGRESS
+        report.save(update_fields=["status", "updated_at"])
+
+        # TODO: Notify user that their report has been acknowledged.
+
+        return report
+
+    @staticmethod
+    def resolve_report(id: str) -> Report:
+        """
+        Resolve a report.
+        """
+        report = ReportService.get_report(id=id)
+
+        if report.status not in [Report.Status.OPEN, Report.Status.IN_PROGRESS]:
+            raise ValidationError("Report is not open or in-progress.")
+
+        report.status = Report.Status.RESOLVED
+        report.save(update_fields=["status", "updated_at"])
+
+        # TODO: Notify user that their report has been resolved.
+
+        return report
 
     @staticmethod
     def submit_report(data):
