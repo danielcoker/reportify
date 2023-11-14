@@ -19,6 +19,7 @@ class ReportSerializer(serializers.ModelSerializer):
         model = Report
         fields = (
             "id",
+            "status",
             "description",
             "location",
             "category",
@@ -26,6 +27,7 @@ class ReportSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             "id",
+            "status",
             "location",
             "created_at",
         )
