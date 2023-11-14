@@ -1,8 +1,17 @@
 from rest_framework import serializers
 
 from users.models import User
+from reports.models import Category
 
-from reports.serializers import CategorySerializer
+
+# TODO: Refactor serializers to avoid circular imports.
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = (
+            "id",
+            "name",
+        )
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,6 +50,7 @@ class MiniUserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "email",
+            "phone",
             "is_active",
         )
         read_only_fields = (
@@ -48,5 +58,6 @@ class MiniUserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "email",
+            "phone",
             "is_active",
         )
