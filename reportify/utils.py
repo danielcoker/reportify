@@ -1,3 +1,5 @@
+import random
+import string
 from collections import OrderedDict
 
 from rest_framework.pagination import PageNumberPagination
@@ -27,3 +29,32 @@ class CustomPageNumberPagination(PageNumberPagination):
                 ]
             )
         )
+
+
+
+def generate_random_string(string_length: int = 5) -> str:
+    """
+    Generate random string.
+    """
+    random_string = "".join(
+        random.choices(
+            string.ascii_uppercase + string.digits,
+            k=string_length,
+        )
+    )
+
+    return random_string
+
+
+def generate_random_numbers(number_length: int = 5) -> str:
+    """
+    Generate random numbers.
+    """
+    random_numbers = "".join(
+        random.choices(
+            string.digits,
+            k=number_length,
+        )
+    )
+
+    return random_numbers
