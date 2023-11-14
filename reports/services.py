@@ -1,5 +1,6 @@
 import random
 import re
+import typing as t
 
 import nltk
 from nltk import ne_chunk, word_tokenize
@@ -7,10 +8,23 @@ from nltk.tag import pos_tag
 from rest_framework.exceptions import ValidationError
 
 from reports.models import Category, Report
+from users.models import User
 
 
 class ReportService:
     UNKNOWN_LOCATION = "unknown"
+
+    @staticmethod
+    def get_reports(user: t.Optional[User] = None) -> t.List[Report]:
+        """
+        Fetch all reports for a particular user based on their role.
+        Only perform this filtering if the user object passed is an
+        instance of User and the user is an admin.
+        """
+        if isinstance(user, User) and user.is_admin is True:
+            return Report.objects.filter(category=user.admin_category)
+        else:
+            return Report.objects.all()
 
     @staticmethod
     def submit_report(data):

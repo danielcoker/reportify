@@ -18,9 +18,12 @@ class ReportViewSet(
     ListModelMixin,
     GenericViewSet,
 ):
-    queryset = Report.objects.all().order_by("-created_at")
     serializer_class = ReportSerializer
     permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        user = self.request.user
+        return ReportService.get_reports(user)
 
     def create(self, request, *args, **kwargs):
         serializer = ReportSerializer(data=request.data)
