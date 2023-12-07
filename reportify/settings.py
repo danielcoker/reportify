@@ -220,3 +220,25 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
+
+# EMAIL
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
+
+EMAIL_BACKEND = config(
+    "DJANGO_EMAIL_BACKEND",
+    default="django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = config("DJANGO_EMAIL_HOST")
+EMAIL_PORT = config("DJANGO_EMAIL_PORT", default=465, cast=int)
+EMAIL_HOST_USER = config("DJANGO_EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("DJANGO_EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = config("DJANGO_EMAIL_USE_TLS", default=False, cast=bool)
+EMAIL_USE_SSL = config("DJANGO_EMAIL_USE_SSL", default=True, cast=bool)
+
+DEFAULT_FROM_EMAIL = config("DJANGO_DEFAULT_FROM_EMAIL", "no-reply@reportify.io")
+
+
+# TERMII
+
+TERMII_API_KEY = config("TERMII_API_KEY", default="")
