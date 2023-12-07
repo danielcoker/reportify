@@ -9,8 +9,8 @@ class ReportServiceTestCase(TestCase):
     def test_notify_admins_notifies_admins(self):
         fire_category = CategoryFactory(name="Fire")
         UserFactory(
-            email="danny.coker7@gmail.com",
-            phone="+2347062406749",
+            email="testemail@test.com",
+            phone="+2347xxxxxxxxx",
             is_admin=True,
             admin_category=fire_category,
         )
