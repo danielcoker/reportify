@@ -18,7 +18,7 @@ def send_sms(
         "from": sender,
         "sms": message,
         "type": "plain",
-        "channel": "generic",
+        "channel": "dnd",
         "api_key": settings.TERMII_API_KEY,
     }
 
