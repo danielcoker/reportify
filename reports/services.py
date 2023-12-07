@@ -3,13 +3,15 @@ import re
 import typing as t
 
 import nltk
+from django.conf import settings
+from django.core.mail import send_mail
+from django.db import transaction
 from nltk import ne_chunk, word_tokenize
 from nltk.tag import pos_tag
 from rest_framework.exceptions import ValidationError
+
+from libs import termii
 from reportify.utils import generate_random_string
-
-from django.db import transaction
-
 from reports.models import Category, Report
 from users.models import User
 
@@ -40,7 +42,7 @@ class ReportService:
             return Report.objects.filter(category=user.admin_category)
         else:
             return Report.objects.all()
-        
+
     @staticmethod
     def acknowledge_report(id: str) -> Report:
         """
@@ -134,7 +136,75 @@ class ReportService:
                 user=user,
             )
 
+        ReportService.notify_admins(report=report)
+
         return report
+
+    @staticmethod
+    def notify_admins(report: Report):
+        """
+        Notify admins of a new report.
+        """
+        admin_users_for_category = User.objects.values_list("phone", "email").filter(
+            admin_category_id=report.category_id,
+            is_admin=True,
+        )
+
+        admin_phones = []
+        admin_emails = []
+
+        for phone, email in admin_users_for_category:
+            admin_phones.append(phone)
+            admin_emails.append(email)
+
+        try:
+            ReportService._send_admin_sms_notification(report, set(admin_phones))
+            ReportService._send_admin_email_notification(report, set(admin_emails))
+        except Exception as e:
+            print(f"An error occurred while sending admin notifications. {e}")
+            return False
+
+        return True
+
+    @staticmethod
+    def _send_admin_sms_notification(report: Report, phones: t.List[str]):
+        """
+        Send SMS notification to admins.
+        """
+        message = "A new incident report has just been submitted. Login to your dashboard to view the details."
+
+        termii.send_sms(phone_numbers=list(phones), message=message)
+
+    @staticmethod
+    def _send_admin_email_notification(report: Report, emails: t.List[str]):
+        """
+        Send email notification to admins.
+        """
+    
+        message = f"""
+            Hello,
+
+            A new incident report has just been submitted. Find the details below:
+
+            Description: {report.description}
+            Location: {report.location}
+            Category: {report.category.name}
+            Date: {report.created_at.strftime("%d %b, %I:%M %p")}
+
+            Regards,
+            Reportify
+        """
+        
+        if settings.APP_SERVER_ENVIRONMENT.lower() in ("production"):
+            send_mail(
+                "[NEW] Reportify - New Incident Report",
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                list(emails),
+                fail_silently=False,
+            )
+        else:
+            print(message)
 
     @staticmethod
     def extract_location_from_description(description: str) -> str:
