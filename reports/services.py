@@ -1,4 +1,3 @@
-import random
 import re
 import typing as t
 
@@ -11,7 +10,11 @@ from nltk.tag import pos_tag
 from rest_framework.exceptions import ValidationError
 
 from libs import termii
-from reportify.utils import generate_random_string
+from reportify.utils import (
+    ReportClassifierModelLoader,
+    generate_random_string,
+    get_user_input_embeddings,
+)
 from reports.models import Category, Report
 from users.models import User
 
@@ -105,8 +108,7 @@ class ReportService:
             or ReportService.UNKNOWN_LOCATION
         )
 
-        # Todo: Use ML algorithm to predict the incident category.
-        category_id = random.randint(1, 3)
+        category_id = ReportService.classify_report(description)
 
         # Create user.
         with transaction.atomic():
@@ -139,6 +141,28 @@ class ReportService:
         ReportService.notify_admins(report=report)
 
         return report
+
+    @staticmethod
+    def classify_report(description: str):
+        """
+        Classify a report.
+
+        This method returns an integer corresponding to the category id.
+        0 => Fire
+        1 => Crime
+        2 => Health
+
+        The model returns a value between 0 and 2, we need to add 1 to it to get the category id.
+        """
+        svm_model = ReportClassifierModelLoader.get_model()
+
+        report_description_embeddings = get_user_input_embeddings(description)
+        prediction = svm_model.predict([report_description_embeddings])
+
+        # TODO: Add logs here.
+        # Log the prediction and the description.
+
+        return int(prediction[0]) + 1
 
     @staticmethod
     def notify_admins(report: Report):
@@ -180,7 +204,6 @@ class ReportService:
         """
         Send email notification to admins.
         """
-    
         message = f"""
             Hello,
 
@@ -194,7 +217,7 @@ class ReportService:
             Regards,
             Reportify
         """
-        
+
         if settings.APP_SERVER_ENVIRONMENT.lower() in ("production"):
             send_mail(
                 "[NEW] Reportify - New Incident Report",
