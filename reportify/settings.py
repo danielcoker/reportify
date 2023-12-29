@@ -35,6 +35,12 @@ ALLOWED_HOSTS = config(
     default="127.0.0.1,",
 )
 
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    cast=lambda v: [s.strip() for s in v.split(",")],
+    default="127.0.0.1,",
+)
+
 APP_SERVER_ENVIRONMENT = config("APP_SERVER_ENVIRONMENT", default="Docker")
 
 if "test" not in sys.argv:
