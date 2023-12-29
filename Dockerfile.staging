@@ -16,6 +16,8 @@ RUN chmod -R 777 /opt/projects/reportify
 COPY ./requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
 # Set up NLTK data download
 RUN python -m nltk.downloader punkt
 RUN python -m nltk.downloader words
