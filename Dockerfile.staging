@@ -33,4 +33,4 @@ CMD python manage.py migrate && \
     # python manage.py createsuperuser --noinput && \
     make load_all_fixtures && \
     python manage.py collectstatic && \
-    gunicorn --bind 0.0.0.0:$PORT --access-logfile - reportify.wsgi:application
+    gunicorn --bind 0.0.0.0:$PORT --timeout 300 --access-logfile - reportify.wsgi:application
