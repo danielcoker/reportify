@@ -38,7 +38,7 @@ ALLOWED_HOSTS = config(
     default="127.0.0.1,",
 )
 
-CSRF_TRUSTED_ORIGINS = ["https://reportify-b3xwl.ondigitalocean.app/"]
+CSRF_TRUSTED_ORIGINS = ["https://reportify-b3xwl.ondigitalocean.app"]
 
 if "test" not in sys.argv:
     LOGGING = {
