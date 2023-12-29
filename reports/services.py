@@ -204,7 +204,6 @@ class ReportService:
         """
         Send email notification to admins.
         """
-
         message = f"""
             Hello,
 
