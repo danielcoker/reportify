@@ -1,9 +1,16 @@
+import os
+import pickle
 import random
 import string
 from collections import OrderedDict
 
+import nltk
+from django.conf import settings
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from transformers import DistilBertModel, DistilBertTokenizer
 
 
 class CustomPageNumberPagination(PageNumberPagination):
@@ -30,6 +37,32 @@ class CustomPageNumberPagination(PageNumberPagination):
             )
         )
 
+
+class ReportClassifierModelLoader:
+    svm_model = None
+
+    @classmethod
+    def load_model(cls):
+        """
+        Load SVM model.
+        """
+        model_path = os.path.join(
+            settings.BASE_DIR,
+            "reports",
+            "ml_models",
+            "report_classifier.pkl",
+        )
+        with open(model_path, "rb") as f:
+            svm_model = pickle.load(f)
+
+        cls.svm_model = svm_model
+
+    @classmethod
+    def get_model(cls):
+        """
+        Get SVM model.
+        """
+        return cls.svm_model
 
 
 def generate_random_string(string_length: int = 5) -> str:
@@ -58,3 +91,48 @@ def generate_random_numbers(number_length: int = 5) -> str:
     )
 
     return random_numbers
+
+
+def remove_punctuation(input_string):
+    """
+    Remove punctuation from input string.
+    """
+    # Make a translation table that maps all punctuation characters to None
+    translator = str.maketrans("", "", string.punctuation)
+
+    # Apply the translation table to the input string
+    result = input_string.translate(translator)
+
+    return result
+
+
+def get_bert_embeddings(sentence):
+    """
+    Get BERT embeddings for a sentence.
+    """
+    tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+    model = DistilBertModel.from_pretrained("distilbert-base-uncased")
+
+    inputs = tokenizer(sentence, return_tensors="pt")
+    outputs = model(**inputs)
+
+    return outputs.last_hidden_state.mean(dim=1).squeeze().detach().numpy()
+
+
+def get_user_input_embeddings(user_input):
+    """
+    Get user input embeddings from BERT model.
+    """
+    stemmer = PorterStemmer()
+    stop_words = set(stopwords.words("english"))
+
+    user_input_processed = remove_punctuation(user_input.lower())
+
+    user_input_tokens = nltk.word_tokenize(user_input_processed)
+    user_input_tokens = [word for word in user_input_tokens if word not in stop_words]
+    user_input_tokens = [stemmer.stem(word) for word in user_input_tokens]
+
+    user_input_string = " ".join(user_input_tokens)
+    user_input_embedding = get_bert_embeddings(user_input_string)
+
+    return user_input_embedding
