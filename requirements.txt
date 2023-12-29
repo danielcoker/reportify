@@ -40,3 +40,4 @@ djmail==2.0.0 # https://github.com/bameda/djmail
 # NLP
 nltk
 numpy
+transformers==4.36.2
