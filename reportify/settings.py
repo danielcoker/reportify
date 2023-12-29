@@ -29,19 +29,20 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 
+
+APP_SERVER_ENVIRONMENT = config("APP_SERVER_ENVIRONMENT", default="Docker")
+
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     cast=lambda v: [s.strip() for s in v.split(",")],
     default="127.0.0.1,",
 )
 
-CSRF_TRUSTED_ORIGINS = config(
-    "CSRF_TRUSTED_ORIGINS",
-    cast=lambda v: [s.strip() for s in v.split(",")],
-    default="127.0.0.1,",
-)
-
-APP_SERVER_ENVIRONMENT = config("APP_SERVER_ENVIRONMENT", default="Docker")
+if APP_SERVER_ENVIRONMENT.lower() in ("production", "staging"):
+    CSRF_TRUSTED_ORIGINS = [config(
+        "CSRF_TRUSTED_ORIGINS",
+        cast=lambda v: [s.strip() for s in v.split(",")],
+    )]
 
 if "test" not in sys.argv:
     LOGGING = {
