@@ -33,6 +33,18 @@ class Report(TimestampedModel, SoftDeleteModel):
         null=True,
         blank=True,
     )
+    longitude = models.DecimalField(
+        max_digits=20,
+        decimal_places=10,
+        blank=True,
+        null=True,
+    )
+    latitude = models.DecimalField(
+        max_digits=20,
+        decimal_places=10,
+        blank=True,
+        null=True,
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
