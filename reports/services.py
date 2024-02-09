@@ -97,12 +97,16 @@ class ReportService:
         return report
 
     @staticmethod
-    def submit_report(data):
+    def submit_report(data: t.Dict[str, str]) -> Report:
         from authentication.services import AuthenticationService
 
         description = data.get("description")
         name = data.get("name")
         phone = data.get("phone")
+        longitude = data.get("longitude")
+        latitude = data.get("latitude")
+
+        # TODO: Use longitude and latitude values to get the locaiton from Google Maps API.
         location = (
             ReportService.extract_location_from_description(description)
             or ReportService.UNKNOWN_LOCATION
@@ -134,6 +138,8 @@ class ReportService:
             report = Report.objects.create(
                 description=description,
                 location=location,
+                longitude=longitude,
+                latitude=latitude,
                 category_id=category_id,
                 user=user,
             )
@@ -143,7 +149,7 @@ class ReportService:
         return report
 
     @staticmethod
-    def classify_report(description: str):
+    def classify_report(description: str) -> int:
         """
         Classify a report.
 
