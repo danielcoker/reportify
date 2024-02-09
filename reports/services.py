@@ -103,6 +103,10 @@ class ReportService:
         description = data.get("description")
         name = data.get("name")
         phone = data.get("phone")
+        longitude = data.get("longitude")
+        latitude = data.get("latitude")
+
+        # TODO: Use longitude and latitude values to get the locaiton from Google Maps API.
         location = (
             ReportService.extract_location_from_description(description)
             or ReportService.UNKNOWN_LOCATION
@@ -134,6 +138,8 @@ class ReportService:
             report = Report.objects.create(
                 description=description,
                 location=location,
+                longitude=longitude,
+                latitude=latitude,
                 category_id=category_id,
                 user=user,
             )

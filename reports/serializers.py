@@ -12,10 +12,21 @@ class CategorySerializer(serializers.ModelSerializer):
             "name",
         )
 
+
 class SubmitReportSerializer(serializers.Serializer):
     description = serializers.CharField(required=True)
     name = serializers.CharField(required=True)
     phone = serializers.CharField(required=True)
+    longitude = serializers.DecimalField(
+        max_digits=20,
+        decimal_places=10,
+        required=False,
+    )
+    latitude = serializers.DecimalField(
+        max_digits=20,
+        decimal_places=10,
+        required=False,
+    )
 
 
 class ReportSerializer(serializers.ModelSerializer):
