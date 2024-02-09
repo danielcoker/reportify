@@ -18,13 +18,13 @@ class SubmitReportSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     phone = serializers.CharField(required=True)
     longitude = serializers.DecimalField(
-        max_digits=20,
-        decimal_places=10,
+        max_digits=22,
+        decimal_places=16,
         required=False,
     )
     latitude = serializers.DecimalField(
-        max_digits=20,
-        decimal_places=10,
+        max_digits=22,
+        decimal_places=16,
         required=False,
     )
 

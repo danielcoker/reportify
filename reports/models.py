@@ -34,14 +34,14 @@ class Report(TimestampedModel, SoftDeleteModel):
         blank=True,
     )
     longitude = models.DecimalField(
-        max_digits=20,
-        decimal_places=10,
+        max_digits=22,
+        decimal_places=16,
         blank=True,
         null=True,
     )
     latitude = models.DecimalField(
-        max_digits=20,
-        decimal_places=10,
+        max_digits=22,
+        decimal_places=16,
         blank=True,
         null=True,
     )
