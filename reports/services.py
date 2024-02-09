@@ -97,7 +97,7 @@ class ReportService:
         return report
 
     @staticmethod
-    def submit_report(data):
+    def submit_report(data: t.Dict[str, str]) -> Report:
         from authentication.services import AuthenticationService
 
         description = data.get("description")
@@ -143,7 +143,7 @@ class ReportService:
         return report
 
     @staticmethod
-    def classify_report(description: str):
+    def classify_report(description: str) -> int:
         """
         Classify a report.
 
