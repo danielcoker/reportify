@@ -1,6 +1,8 @@
 import re
 import typing as t
 
+import requests
+
 import nltk
 from django.conf import settings
 from django.core.mail import send_mail
@@ -106,12 +108,7 @@ class ReportService:
         longitude = data.get("longitude")
         latitude = data.get("latitude")
 
-        # TODO: Use longitude and latitude values to get the locaiton from Google Maps API.
-        location = (
-            ReportService.extract_location_from_description(description)
-            or ReportService.UNKNOWN_LOCATION
-        )
-
+        location = ReportService.get_location_from_lat_and_long(latitude, longitude)
         category_id = ReportService.classify_report(description)
 
         # Create user.
@@ -147,6 +144,34 @@ class ReportService:
         ReportService.notify_admins(report=report)
 
         return report
+
+    @staticmethod
+    def get_location_from_lat_and_long(latitude: t.Optional[float], longitude: t.Optional[float]) -> str:
+        """
+        Get the location from latitude and longitude.
+        """
+        location = ReportService.UNKNOWN_LOCATION
+        if latitude is None or longitude is None:
+            return ReportService.UNKNOWN_LOCATION
+
+        response = requests.get(
+            "https://maps.googleapis.com/maps/api/geocode/json",
+            params={
+                "latlng": f"{latitude},{longitude}",
+                "key": settings.GOOGLE_MAPS_API_KEY,
+            }
+        )
+
+        if response.status_code != 200:
+            return location
+
+        try:
+            data = response.json()
+            location = data["results"][0]["formatted_address"]
+        except Exception:   # noqa
+            return location
+
+        return location
 
     @staticmethod
     def classify_report(description: str) -> int:

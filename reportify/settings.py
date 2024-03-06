@@ -245,3 +245,7 @@ DEFAULT_FROM_EMAIL = config("DJANGO_DEFAULT_FROM_EMAIL", "no-reply@reportify.io"
 # TERMII
 
 TERMII_API_KEY = config("TERMII_API_KEY", default="")
+
+
+# Google Maps API
+GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
