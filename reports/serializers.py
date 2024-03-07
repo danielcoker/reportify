@@ -40,6 +40,8 @@ class ReportSerializer(serializers.ModelSerializer):
             "status",
             "description",
             "location",
+            "longitude",
+            "latitude",
             "category",
             "user",
             "created_at",
@@ -49,6 +51,8 @@ class ReportSerializer(serializers.ModelSerializer):
             "status",
             "description",
             "location",
+            "longitude",
+            "latitude",
             "created_at",
         )
 
